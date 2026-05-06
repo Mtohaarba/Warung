@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toko Digital - Kasir Modern</title>
+    <title>Toko Digital - Kasir Pro</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -13,70 +13,75 @@
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-brand">
-                <i class="fas fa-store-alt"></i>
-                <span>Toko Digital</span>
+                <i class="fas fa-store"></i>
+                <span>Toko Pro</span>
             </div>
             <ul class="nav-menu">
-                <li><a href="#pesan" class="nav-link active" onclick="showSection('pesan')">
+                <li><a href="#" class="nav-link active" onclick="showSection('pesan');return false;">
                     <i class="fas fa-shopping-bag"></i> Pesan
                 </a></li>
-                <li><a href="#barang" class="nav-link" onclick="showSection('barang')">
-                    <i class="fas fa-boxes"></i> Barang
+                <li><a href="#" class="nav-link" onclick="showSection('barang');return false;">
+                    <i class="fas fa-box"></i> Barang
                 </a></li>
-                <li><a href="#history" class="nav-link" onclick="showSection('history')">
-                    <i class="fas fa-history"></i> History <span id="historyCount">0</span>
+                <li><a href="#" class="nav-link" onclick="showSection('history');return false;">
+                    <i class="fas fa-history"></i> History 
+                    <span id="historyBadge" class="badge">0</span>
                 </a></li>
             </ul>
         </div>
     </nav>
 
-    <!-- Main Content -->
     <main class="main-content">
-        <!-- PESAN - Tampilan Awal Barang -->
+        <!-- PESAN -->
         <section id="pesan" class="section active">
             <div class="container">
-                <div class="section-header">
-                    <h2><i class="fas fa-shopping-bag"></i> Pilih Barang</h2>
+                <header class="section-header">
+                    <h1><i class="fas fa-shopping-bag"></i> Pilih Barang</h1>
                     <div class="stats">
-                        <span>Total Produk: <strong id="totalProduk">0</strong></span>
+                        <span><i class="fas fa-box"></i> <strong id="totalProduk">0</strong> Barang</span>
                     </div>
-                </div>
+                </header>
                 
-                <div class="search-section">
+                <div class="search-container">
                     <div class="search-box">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="pesanSearch" placeholder="Cari barang..." onkeyup="searchPesan()">
+                        <input type="text" id="searchPesan" placeholder="Cari nama barang..." oninput="searchPesanLive()">
+                        <i class="fas fa-times" id="clearSearch" onclick="clearSearch()" style="display:none;"></i>
                     </div>
                 </div>
 
-                <div class="produk-grid" id="pesanProdukGrid">
-                    <!-- Produk akan dirender disini -->
+                <div class="produk-container" id="gridProduk">
+                    <div class="empty-state">
+                        <i class="fas fa-box-open"></i>
+                        <h2>Tidak ada barang</h2>
+                        <p>Tambahkan barang pertama di menu <strong>Barang</strong></p>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- BARANG - CRUD -->
+        <!-- BARANG CRUD -->
         <section id="barang" class="section">
             <div class="container">
-                <div class="section-header">
-                    <h2><i class="fas fa-cogs"></i> Kelola Barang</h2>
-                    <button class="btn btn-primary" onclick="openBarangModal()">
+                <header class="section-header">
+                    <h1><i class="fas fa-cogs"></i> Kelola Barang</h1>
+                    <button class="btn btn-primary btn-large" onclick="openModalBarang()">
                         <i class="fas fa-plus"></i> Tambah Barang
                     </button>
-                </div>
+                </header>
 
-                <div class="table-container">
-                    <table id="barangTable">
+                <div class="table-responsive">
+                    <table class="data-table">
                         <thead>
                             <tr>
                                 <th>Foto</th>
-                                <th>Nama</th>
+                                <th>Nama Barang</th>
                                 <th>Harga</th>
                                 <th>Stok</th>
-                                <th>Aksi</th>
+                                <th style="width: 150px;">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="barangTableBody"></tbody>
+                        <tbody id="tableBarang"></tbody>
                     </table>
                 </div>
             </div>
@@ -85,123 +90,140 @@
         <!-- HISTORY -->
         <section id="history" class="section">
             <div class="container">
-                <div class="section-header">
-                    <h2><i class="fas fa-history"></i> Riwayat Transaksi</h2>
-                    <div class="history-actions">
-                        <input type="date" id="historyDateFilter" onchange="filterHistory()">
-                        <button class="btn btn-secondary" onclick="backupPDF()">
-                            <i class="fas fa-download"></i> Backup PDF
+                <header class="section-header">
+                    <h1><i class="fas fa-history"></i> Riwayat Transaksi</h1>
+                    <div class="header-actions">
+                        <input type="date" id="filterTanggal" onchange="filterHistory()" class="input-date">
+                        <button class="btn btn-success" onclick="exportPDF()">
+                            <i class="fas fa-file-pdf"></i> PDF
                         </button>
-                        <button class="btn btn-danger" onclick="hapusSemuaHistory()">
-                            <i class="fas fa-trash"></i> Hapus Semua
+                        <button class="btn btn-danger" onclick="clearAllHistory()">
+                            <i class="fas fa-trash"></i> Hapus All
                         </button>
                     </div>
-                </div>
+                </header>
 
-                <div class="table-container">
-                    <table id="historyTable">
+                <div class="table-responsive">
+                    <table class="data-table">
                         <thead>
                             <tr>
-                                <th>No</th>
+                                <th>#</th>
                                 <th>Tanggal</th>
-                                <th>Total Item</th>
-                                <th>Total Bayar</th>
-                                <th>Kembalian</th>
+                                <th>Item</th>
+                                <th>Total</th>
+                                <th>Kembali</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="historyTableBody"></tbody>
+                        <tbody id="tableHistory"></tbody>
                     </table>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- Modal Keranjang -->
-    <div id="keranjangModal" class="modal">
-        <div class="modal-content large">
+    <!-- MODAL KERANJANG -->
+    <div id="modalKeranjang" class="modal-overlay">
+        <div class="modal-card">
             <div class="modal-header">
-                <h3><i class="fas fa-shopping-cart"></i> Keranjang Belanja</h3>
-                <span class="close" onclick="closeKeranjangModal()">&times;</span>
+                <h2><i class="fas fa-shopping-cart"></i> Keranjang</h2>
+                <button class="btn-close" onclick="closeModal('modalKeranjang')">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <div id="keranjangContent">
-                <div class="empty-state">
-                    <i class="fas fa-shopping-cart"></i>
-                    <h4>Keranjang Kosong</h4>
-                    <p>Pilih barang dari daftar</p>
-                </div>
-            </div>
+            <div id="keranjangList"></div>
             <div class="modal-footer">
-                <button class="btn btn-success" onclick="openBayarModal()">
-                    <i class="fas fa-credit-card"></i> Bayar
+                <div class="total-display">
+                    <strong>Total: <span id="totalKeranjang">Rp 0</span></strong>
+                </div>
+                <button class="btn btn-success btn-full" onclick="prosesPembayaran()">
+                    <i class="fas fa-credit-card"></i> Bayar Sekarang
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Bayar -->
-    <div id="bayarModal" class="modal">
-        <div class="modal-content">
+    <!-- MODAL BAYAR -->
+    <div id="modalBayar" class="modal-overlay">
+        <div class="modal-card">
             <div class="modal-header">
-                <h3><i class="fas fa-credit-card"></i> Pembayaran</h3>
-                <span class="close" onclick="closeBayarModal()">&times;</span>
+                <h2><i class="fas fa-money-bill-wave"></i> Pembayaran</h2>
+                <button class="btn-close" onclick="closeModal('modalBayar')">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <div id="bayarContent">
-                <!-- Konten pembayaran -->
+            <div id="detailPembayaran"></div>
+            <div class="pembayaran-section">
+                <label>Uang Tunai:</label>
+                <input type="number" id="inputUang" class="input-money" placeholder="0" min="0">
+                <div class="kembalian-box">
+                    <strong>Kembalian: <span id="displayKembalian">Rp 0</span></strong>
+                </div>
             </div>
+            <button class="btn btn-success btn-full" onclick="selesaiBayar()">
+                <i class="fas fa-check"></i> Selesai Transaksi
+            </button>
         </div>
     </div>
 
-    <!-- Modal CRUD Barang -->
-    <div id="barangModal" class="modal">
-        <div class="modal-content">
+    <!-- MODAL TAMBAH/EDIT BARANG -->
+    <div id="modalBarang" class="modal-overlay">
+        <div class="modal-card">
             <div class="modal-header">
-                <h3 id="barangModalTitle">Tambah Barang</h3>
-                <span class="close" onclick="closeBarangModal()">&times;</span>
+                <h2 id="titleBarang">Tambah Barang</h2>
+                <button class="btn-close" onclick="closeModal('modalBarang')">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <form id="barangForm">
+            <form id="formBarang">
                 <div class="form-group">
-                    <label>Foto (Opsional)</label>
-                    <input type="file" id="barangImage" accept="image/*" onchange="previewBarangImage()">
-                    <img id="barangPreview" class="image-preview">
+                    <label>Foto Barang</label>
+                    <input type="file" id="fotoBarang" accept="image/*">
+                    <div id="previewFoto" class="image-preview"></div>
+                </div>
+                <div class="form-group">
+                    <label>Nama Barang *</label>
+                    <input type="text" id="namaBarang" required>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Nama Barang *</label>
-                        <input type="text" id="barangName" required>
+                        <label>Harga (Rp)</label>
+                        <input type="number" id="hargaBarang" required min="1">
                     </div>
                     <div class="form-group">
-                        <label>Harga (Rp) *</label>
-                        <input type="number" id="barangPrice" required min="0">
+                        <label>Stok</label>
+                        <input type="number" id="stokBarang" required min="0">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label>Stok *</label>
-                    <input type="number" id="barangStock" required min="0">
-                </div>
                 <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeBarangModal()">Batal</button>
-                    <button type="submit" class="btn btn-primary">Simpan</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('modalBarang')">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan Barang</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Detail History Modal -->
-    <div id="historyDetailModal" class="modal">
-        <div class="modal-content">
+    <!-- MODAL DETAIL HISTORY -->
+    <div id="modalDetail" class="modal-overlay">
+        <div class="modal-card">
             <div class="modal-header">
-                <h3 id="historyDetailTitle">Detail Transaksi</h3>
-                <span class="close" onclick="closeHistoryDetail()">&times;</span>
+                <h2>Detail Transaksi</h2>
+                <button class="btn-close" onclick="closeModal('modalDetail')">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <div id="historyDetailContent"></div>
+            <div id="contentDetail"></div>
             <div class="form-actions">
-                <button class="btn btn-secondary" onclick="printStruk()">Cetak Struk</button>
-                <button class="btn btn-danger" onclick="hapusHistoryConfirm()">Hapus Transaksi</button>
+                <button class="btn btn-success" onclick="printStrukCurrent()">
+                    <i class="fas fa-print"></i> Cetak Struk
+                </button>
+                <button class="btn btn-danger" onclick="confirmDeleteHistory()">
+                    <i class="fas fa-trash"></i> Hapus
+                </button>
             </div>
         </div>
     </div>
 
     <script src="script.js"></script>
 </body>
-</html>
+                    </html>
