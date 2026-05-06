@@ -4,257 +4,262 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TokoKu</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<title>TokoKu PRO</title>
 <style>
-/* (CSS LU TETAP - GUE GA UBAH) */
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:system-ui;background:#0c1017;color:#e8edf4}
-.nav{position:sticky;top:0;background:#0c1017;border-bottom:1px solid #1c2838;padding:8px}
-.nav-in{display:flex;gap:6px;align-items:center}
-.nav-brand{color:#f97316;font-weight:800;margin-right:auto}
-.nav-btn{background:0;border:0;color:#7a8a9e;padding:6px 10px;cursor:pointer}
-.nav-btn.on{color:#f97316}
+body{font-family:sans-serif;background:#0c1017;color:#fff}
+.nav{display:flex;gap:10px;padding:10px;border-bottom:1px solid #333}
+.nav button{padding:6px 10px}
 .wrap{padding:12px}
-.card{background:#131b28;padding:10px;border-radius:10px;margin-bottom:10px}
-.btn{padding:8px;border:none;border-radius:6px;cursor:pointer}
-.btn-primary{background:#f97316;color:#fff}
-.btn-red{background:#ef4444;color:#fff}
-.inp{width:100%;padding:8px;margin-bottom:8px;background:#0a0f18;border:1px solid #1c2838;color:#fff}
+.card{background:#131b28;padding:10px;margin-bottom:10px;border-radius:8px}
+.inp{width:100%;padding:6px;margin:4px 0;background:#0a0f18;color:#fff;border:1px solid #333}
+.btn{padding:6px 10px;margin-top:5px;cursor:pointer}
+.btn-primary{background:#f97316;color:#fff;border:none}
+.btn-red{background:#ef4444;color:#fff;border:none}
 </style>
 </head>
 <body>
 
-<nav class="nav">
-<div class="nav-in">
-<div class="nav-brand">TokoKu</div>
-<button class="nav-btn on" id="nPes" onclick="goTo('pesanan')">Pesan</button>
-<button class="nav-btn" id="nBar" onclick="goTo('barang')">Barang</button>
-<button class="nav-btn" id="nHis" onclick="goTo('history')">History</button>
+<div class="nav">
+<button onclick="goTo('pesanan')">Pesanan</button>
+<button onclick="goTo('barang')">Barang</button>
+<button onclick="goTo('history')">History</button>
 </div>
-</nav>
 
 <div id="app"></div>
 
 <script>
-// ===== DATA =====
-let produk = [];
-let keranjang = [];
-let history = [];
-let halaman = 'pesanan';
+let produk=[],keranjang=[],history=[],halaman='pesanan';
 
-// ===== INIT =====
 function init(){
-    produk = JSON.parse(localStorage.getItem('produk')||'[]');
-    history = JSON.parse(localStorage.getItem('history')||'[]');
+produk=JSON.parse(localStorage.getItem('produk')||'[]');
+history=JSON.parse(localStorage.getItem('history')||'[]');
 
-    if(produk.length===0){
-        produk = [
-            {id:1,nama:'Kopi',harga:10000,stok:10,deskripsi:'Kopi enak'},
-            {id:2,nama:'Teh',harga:8000,stok:10,deskripsi:'Teh segar'}
-        ];
-        save();
-    }
-    render();
+if(produk.length===0){
+produk=[
+{id:1,nama:'Kopi',harga:10000,stok:10,deskripsi:'Minuman',tipe:'fix'},
+{id:2,nama:'Bawang Merah',harga:0,stok:999,deskripsi:'Fleksibel',tipe:'flex'}
+];
+save();
+}
+render();
 }
 
-function save(){
-    localStorage.setItem('produk',JSON.stringify(produk));
-}
-
-function saveHistory(){
-    localStorage.setItem('history',JSON.stringify(history));
-}
-
+function save(){localStorage.setItem('produk',JSON.stringify(produk));}
+function saveH(){localStorage.setItem('history',JSON.stringify(history));}
 function rp(n){return 'Rp '+n.toLocaleString('id-ID');}
-
-// ===== NAV =====
-function goTo(p){
-    halaman=p;
-    render();
-}
+function goTo(p){halaman=p;render();}
 
 // ===== RENDER =====
 function render(){
-    let el=document.getElementById('app');
-    if(halaman==='pesanan') return renderPesanan(el);
-    if(halaman==='barang') return renderBarang(el);
-    if(halaman==='history') return renderHistory(el);
+let el=document.getElementById('app');
+if(halaman==='pesanan') renderPesanan(el);
+if(halaman==='barang') renderBarang(el);
+if(halaman==='history') renderHistory(el);
 }
 
-// ===== PESAN =====
+// ===== PESANAN =====
 function renderPesanan(el){
-    let h='<div class="wrap"><h3>Pesan</h3>';
-    produk.forEach(p=>{
-        h+=`<div class="card">
-        <b>${p.nama}</b><br>
-        <small>${p.deskripsi||''}</small><br>
-        ${rp(p.harga)} | stok: ${p.stok}<br>
-        <button class="btn btn-primary" onclick="addCart(${p.id})">Tambah</button>
-        </div>`;
-    });
+let h='<div class="wrap"><h3>Produk</h3>';
 
-    h+='<h3>Keranjang</h3>';
-    keranjang.forEach((k,i)=>{
-        h+=`${k.nama} x ${k.qty} <button onclick="rm(${i})">x</button><br>`;
-    });
+produk.forEach(p=>{
+h+=`<div class="card">
+<b>${p.nama}</b><br>
+<small>${p.deskripsi||''}</small><br>
+Harga: ${p.tipe==='fix'?rp(p.harga):'Fleksibel'}<br>
+<button class="btn btn-primary" onclick="addCart(${p.id})">Tambah</button>
+</div>`;
+});
 
-    let total = keranjang.reduce((a,b)=>a+b.harga*b.qty,0);
+h+='<h3>Keranjang</h3>';
 
-    h+=`<p>Total: ${rp(total)}</p>
-    <input class="inp" id="bayar" placeholder="Uang bayar">
-    <button class="btn btn-primary" onclick="bayar()">Bayar</button>
-    </div>`;
+keranjang.forEach((k,i)=>{
+h+=`<div class="card">
+<b>${k.nama}</b><br>
 
-    el.innerHTML=h;
+Qty:
+<input class="inp" value="${k.qty}" onchange="editQty(${i},this.value)">
+
+Harga:
+<input class="inp" value="${k.harga}" onchange="editHarga(${i},this.value)">
+
+Subtotal: ${rp(k.qty*k.harga)}<br>
+
+<button class="btn btn-red" onclick="rm(${i})">Hapus</button>
+</div>`;
+});
+
+let total=keranjang.reduce((a,b)=>a+b.qty*b.harga,0);
+
+h+=`<h3>Total: ${rp(total)}</h3>
+<input class="inp" id="bayar" placeholder="Uang bayar">
+<button class="btn btn-primary" onclick="bayar()">Bayar</button>
+</div>`;
+
+el.innerHTML=h;
 }
 
 // ===== CART =====
 function addCart(id){
-    let p=produk.find(x=>x.id===id);
-    let k=keranjang.find(x=>x.id===id);
-    if(!k) keranjang.push({id:p.id,nama:p.nama,harga:p.harga,qty:1});
-    else k.qty++;
-    render();
+let p=produk.find(x=>x.id===id);
+
+if(p.tipe==='flex'){
+let qty=parseFloat(prompt('Jumlah (kg/butir/dll)'))||0;
+let harga=parseInt(prompt('Harga total'))||0;
+if(qty<=0||harga<=0) return;
+
+keranjang.push({id:p.id,nama:p.nama,qty:qty,harga:harga});
+}else{
+let k=keranjang.find(x=>x.id===id);
+if(!k) keranjang.push({id:p.id,nama:p.nama,qty:1,harga:p.harga});
+else k.qty++;
+}
+render();
 }
 
-function rm(i){
-    keranjang.splice(i,1);
-    render();
+function editQty(i,v){
+v=parseFloat(v)||0;
+if(v>0) keranjang[i].qty=v;
+render();
 }
+
+function editHarga(i,v){
+v=parseInt(v)||0;
+if(v>0) keranjang[i].harga=v;
+render();
+}
+
+function rm(i){keranjang.splice(i,1);render();}
 
 // ===== BAYAR =====
 function bayar(){
-    let bayar=parseInt(document.getElementById('bayar').value)||0;
-    let total=keranjang.reduce((a,b)=>a+b.harga*b.qty,0);
+let bayar=parseInt(document.getElementById('bayar').value)||0;
+let total=keranjang.reduce((a,b)=>a+b.qty*b.harga,0);
 
-    if(bayar<total || total===0) return alert('Uang kurang');
+if(bayar<total||total===0) return alert('Uang kurang');
 
-    // KURANGI STOK SAAT BAYAR
-    keranjang.forEach(k=>{
-        let p=produk.find(x=>x.id===k.id);
-        if(p) p.stok -= k.qty;
-    });
+keranjang.forEach(k=>{
+let p=produk.find(x=>x.id===k.id);
+if(p && p.tipe==='fix') p.stok-=k.qty;
+});
 
-    // SIMPAN HISTORY
-    history.unshift({
-        waktu:new Date().toLocaleString(),
-        items:JSON.parse(JSON.stringify(keranjang)),
-        total:total
-    });
-    saveHistory();
-    save();
+history.unshift({
+waktu:new Date().toLocaleString('id-ID'),
+items:JSON.parse(JSON.stringify(keranjang)),
+total:total
+});
 
-    keranjang=[];
-    alert('Berhasil!');
-    render();
+save(); saveH();
+keranjang=[];
+alert('Berhasil bayar!');
+render();
 }
 
 // ===== BARANG =====
 function renderBarang(el){
-    let h='<div class="wrap"><h3>Barang</h3>';
+let h='<div class="wrap"><h3>Barang</h3>';
 
-    produk.forEach(p=>{
-        h+=`<div class="card">
-        <b>${p.nama}</b><br>
-        <small>${p.deskripsi||''}</small><br>
-        ${rp(p.harga)} | stok: ${p.stok}
-        </div>`;
-    });
+produk.forEach(p=>{
+h+=`<div class="card">
+<b>${p.nama}</b><br>
+${p.deskripsi||''}<br>
+${p.tipe} | stok:${p.stok}
+</div>`;
+});
 
-    h+=`
-    <h4>Tambah</h4>
-    <input class="inp" id="nm" placeholder="Nama">
-    <input class="inp" id="ds" placeholder="Deskripsi">
-    <input class="inp" id="hrg" placeholder="Harga">
-    <input class="inp" id="stk" placeholder="Stok">
-    <button class="btn btn-primary" onclick="tambah()">Tambah</button>
-    </div>`;
+h+=`
+<h3>Tambah Barang</h3>
+<input class="inp" id="nm" placeholder="Nama">
+<input class="inp" id="ds" placeholder="Deskripsi">
+<input class="inp" id="hrg" placeholder="Harga">
+<input class="inp" id="stk" placeholder="Stok">
+<select class="inp" id="tipe">
+<option value="fix">Fix</option>
+<option value="flex">Flex</option>
+</select>
+<button class="btn btn-primary" onclick="tambah()">Tambah</button>
+</div>`;
 
-    el.innerHTML=h;
+el.innerHTML=h;
 }
 
 function tambah(){
-    let nm=document.getElementById('nm').value;
-    let ds=document.getElementById('ds').value;
-    let hrg=parseInt(document.getElementById('hrg').value);
-    let stk=parseInt(document.getElementById('stk').value);
+let nm=document.getElementById('nm').value;
+let ds=document.getElementById('ds').value;
+let hrg=parseInt(document.getElementById('hrg').value)||0;
+let stk=parseInt(document.getElementById('stk').value)||0;
+let tipe=document.getElementById('tipe').value;
 
-    produk.push({
-        id:Date.now(),
-        nama:nm,
-        deskripsi:ds,
-        harga:hrg,
-        stok:stk
-    });
+produk.push({
+id:Date.now(),
+nama:nm,
+deskripsi:ds,
+harga:hrg,
+stok:stk,
+tipe:tipe
+});
 
-    save();
-    render();
+save();
+render();
 }
 
 // ===== HISTORY =====
 function renderHistory(el){
-    let h='<div class="wrap"><h3>History</h3>';
+let h='<div class="wrap"><h3>History</h3>';
 
-    if(history.length===0){
-        h+='Kosong';
-    } else {
-        history.forEach(hs=>{
-            h+=`<div class="card">
-            <b>${hs.waktu}</b><br>`;
-            hs.items.forEach(i=>{
-                h+=`${i.nama} x ${i.qty}<br>`;
-            });
-            h+=`Total: ${rp(hs.total)}</div>`;
-        });
-    }
+if(history.length===0) h+='Kosong';
 
-    h+=`
-    <button class="btn btn-red" onclick="hapusHistory()">Hapus History</button>
-    <button class="btn" onclick="backup()">Backup</button>
-    <input type="file" id="restoreFile">
-    <button class="btn" onclick="restore()">Restore</button>
-    </div>`;
+history.forEach(tr=>{
+h+=`<div class="card">
+<b>${tr.waktu}</b><br>`;
+tr.items.forEach(i=>{
+h+=`${i.nama} x ${i.qty} (${rp(i.harga)})<br>`;
+});
+h+=`Total: ${rp(tr.total)}
+</div>`;
+});
 
-    el.innerHTML=h;
+h+=`
+<button class="btn btn-red" onclick="clrHistory()">Hapus History</button>
+<button class="btn" onclick="backup()">Backup</button>
+<input type="file" id="file">
+<button class="btn" onclick="restore()">Restore</button>
+</div>`;
+
+el.innerHTML=h;
 }
 
-function hapusHistory(){
-    if(confirm('Hapus semua history?')){
-        history=[];
-        saveHistory();
-        render();
-    }
+function clrHistory(){
+if(confirm('Hapus semua history?')){
+history=[];
+saveH();
+render();
+}
 }
 
 // ===== BACKUP =====
 function backup(){
-    let data = {
-        produk:produk,
-        history:history
-    };
-    let blob = new Blob([JSON.stringify(data)], {type:"application/json"});
-    let a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download='backup_tokoku.json';
-    a.click();
+let data={produk,history};
+let blob=new Blob([JSON.stringify(data)],{type:'application/json'});
+let a=document.createElement('a');
+a.href=URL.createObjectURL(blob);
+a.download='backup_tokoku.json';
+a.click();
 }
 
 // ===== RESTORE =====
 function restore(){
-    let f=document.getElementById('restoreFile').files[0];
-    if(!f) return;
+let f=document.getElementById('file').files[0];
+if(!f) return;
 
-    let r=new FileReader();
-    r.onload=function(e){
-        let d=JSON.parse(e.target.result);
-        produk=d.produk||[];
-        history=d.history||[];
-        save();
-        saveHistory();
-        render();
-    };
-    r.readAsText(f);
+let r=new FileReader();
+r.onload=e=>{
+let d=JSON.parse(e.target.result);
+produk=d.produk||[];
+history=d.history||[];
+save(); saveH();
+render();
+};
+r.readAsText(f);
 }
 
 init();
@@ -262,4 +267,3 @@ init();
 
 </body>
 </html>
-
